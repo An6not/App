@@ -2,7 +2,7 @@ name: Build APK
 on: [push, pull_request]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # Мы откатимся на более стабильную 22.04
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -12,19 +12,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install System Dependencies
+      - name: Install Dependencies and Build
+        env:
+          DEBIAN_FRONTEND: noninteractive
         run: |
+          # 1. Обновление и установка системных пакетов с флагами тишины
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-
-      - name: Install Buildozer
-        run: |
+          sudo apt-get install -y -qq git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+          
+          # 2. Установка инструментов сборки
           pip install --user --upgrade Cython==0.29.33 wheel buildozer
-          echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Build with Buildozer
-        run: |
-          # Соглашаемся со всеми лицензиями Android автоматически
+          export PATH=$PATH:$HOME/.local/bin
+          
+          # 3. Проверка наличия файлов (для отладки)
+          ls -la
+          
+          # 4. Запуск сборки
           yes | buildozer android debug
 
       - name: Upload APK
