@@ -6,7 +6,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Build with Buildozer
-        uses: ArtemSerebrennikov/buildozer-action@v1
+        uses: Peter-Loster/buildozer-action@v2
         with:
           buildozer_version: master
           python_version: 3.11
