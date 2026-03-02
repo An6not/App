@@ -12,23 +12,24 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies and Build
+      - name: Install System Dependencies
         run: |
-          # 1. Установка системных библиотек
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          
-          # 2. Установка Buildozer и Cython
-          pip3 install --user --upgrade Cython==0.29.33 wheel buildozer
-          export PATH=$PATH:$HOME/.local/bin
-          
-          # 3. ЗАПУСК СБОРКИ (Самый важный этап)
-          # Мы используем 'yes |', чтобы автоматически соглашаться на все лицензии Android SDK
+          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
+
+      - name: Install Buildozer
+        run: |
+          pip install --user --upgrade Cython==0.29.33 wheel buildozer
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Build with Buildozer
+        run: |
+          # Соглашаемся со всеми лицензиями Android автоматически
           yes | buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: my-app-bundle
+          name: my-app
           path: bin/*.apk
           
